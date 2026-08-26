@@ -57,7 +57,7 @@ const linkSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const Link = mongoose.model("Link", linkSchema);
