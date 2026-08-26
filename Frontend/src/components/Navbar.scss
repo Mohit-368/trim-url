@@ -1,0 +1,206 @@
+@use "sass:color";
+
+// --- Palette ---
+$c-black: #000000;
+$c-dark: #3D0000;
+$c-crimson: #950101;
+$c-red: #FF0000;
+
+$t-main: #FFFFFF;
+$t-muted: #9CA3AF;
+
+.premium-nav {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  z-index: 1000;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 50px;
+  background: transparent;
+  border: 1px solid transparent;
+
+  &.scrolled {
+    background: rgba($c-black, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba($c-crimson, 0.4);
+    box-shadow: 0 10px 30px rgba($c-black, 0.8), inset 0 0 0 1px rgba($t-main, 0.05);
+    top: 1rem;
+  }
+
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    text-decoration: none; // Fixes the underline on the <Link> component
+
+    .logo-icon {
+      color: $c-red;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: $t-main;
+      letter-spacing: -0.02em;
+    }
+
+    &:hover .logo-icon {
+      transform: rotate(15deg) scale(1.1);
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    .nav-link {
+      color: $t-muted;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+
+      &:hover { color: $t-main; }
+    }
+
+    .api-link {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: $c-red;
+      background: rgba($c-crimson, 0.1);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid rgba($c-crimson, 0.3);
+      text-decoration: none;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba($c-crimson, 0.3);
+        border-color: $c-red;
+        color: $t-main;
+      }
+    }
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .login-btn {
+      background: transparent;
+      border: none;
+      color: $t-main;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: color 0.2s ease;
+      &:hover { color: $c-red; }
+    }
+
+    .dashboard-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: $c-red;
+      color: $c-black;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: color.adjust($c-red, $lightness: 5%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba($c-red, 0.4);
+      }
+    }
+  }
+
+  .mobile-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: $t-main;
+    cursor: pointer;
+  }
+
+  .mobile-menu {
+    display: none;
+  }
+
+  // Responsive Styles
+  @media (max-width: 768px) {
+    border-radius: 16px;
+    width: 95%;
+    
+    .desktop-only { display: none; }
+    .mobile-toggle { display: block; }
+
+    .mobile-menu {
+      display: flex;
+      flex-direction: column;
+      background: rgba($c-black, 0.95);
+      backdrop-filter: blur(20px);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      padding: 0;
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+
+      &.open {
+        max-height: 400px;
+        padding: 1rem;
+        border: 1px solid rgba($c-crimson, 0.4);
+        border-top: none;
+      }
+
+      a {
+        color: $t-main;
+        text-decoration: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba($c-crimson, 0.2);
+        font-weight: 500;
+        
+        &.api-link { color: $c-red; }
+      }
+
+      .mobile-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 0 0;
+
+        button {
+          padding: 1rem;
+          border-radius: 8px;
+          font-weight: 600;
+        }
+        .login-btn { background: rgba($c-dark, 0.5); border: 1px solid $c-crimson; color: $t-main; }
+        .dashboard-btn { background: $c-red; color: $c-black; border: none; }
+      }
+    }
+  }
+}

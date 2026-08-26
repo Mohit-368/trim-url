@@ -1,0 +1,313 @@
+@use "sass:color";
+
+// TrimLink Core Variables
+$c-black: #000000;
+$c-dark: #3D0000;
+$c-crimson: #950101;
+$c-red: #FF0000;
+$t-main: #FFFFFF;
+$t-muted: #9CA3AF;
+$font-sans: 'Inter', sans-serif;
+$font-mono: 'Fira Code', monospace;
+
+// Base Container
+.auth-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, $c-dark 0%, $c-black 70%);
+  overflow: hidden;
+  font-family: $font-sans;
+  padding: 20px;
+}
+
+// Animated Cyber Grid
+.bg-grid {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: linear-gradient(rgba($c-crimson, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($c-crimson, 0.2) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: rotateX(45deg);
+  perspective: 1000px;
+  z-index: 1;
+  pointer-events: none;
+  animation: gridMove 20s linear infinite;
+}
+
+// Glowing Orbs
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 2;
+  opacity: 0.4;
+  pointer-events: none;
+
+  &.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: $c-crimson;
+    top: -100px;
+    left: -100px;
+    animation: floatOrb 10s ease-in-out infinite alternate;
+  }
+
+  &.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: $c-red;
+    bottom: -50px;
+    right: -50px;
+    animation: floatOrb 12s ease-in-out infinite alternate-reverse;
+  }
+}
+
+// Glassmorphism Card
+.auth-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(145deg, rgba($c-dark, 0.6), rgba($c-black, 0.8));
+  border: 1px solid rgba($c-crimson, 0.5);
+  border-radius: 16px;
+  padding: 40px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba($c-crimson, 0.1);
+  animation: riseUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+// Header Elements
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba($c-crimson, 0.15);
+    border: 1px solid rgba($c-crimson, 0.4);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    color: $c-red;
+    font-family: $font-mono;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    .brand-icon {
+      animation: pulseGlow 2s infinite;
+    }
+  }
+
+  h2 {
+    color: $t-main;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+  }
+
+  p {
+    color: $t-muted;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+// Form & Inputs
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .error-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba($c-red, 0.1);
+    border-left: 4px solid $c-red;
+    color: $t-main;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: $font-mono;
+    animation: riseUp 0.3s ease forwards;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      color: $t-muted;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-wrapper {
+      position: relative;
+
+      .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $t-muted;
+        transition: color 0.3s ease;
+      }
+
+      input {
+        width: 100%;
+        background: rgba(#000000, 0.4);
+        border: 1px solid rgba($c-crimson, 0.3);
+        border-radius: 8px;
+        padding: 14px 14px 14px 44px;
+        color: $t-main;
+        font-family: $font-mono;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+
+        &::placeholder {
+          color: rgba($t-muted, 0.4);
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $c-red;
+          background: rgba(#000000, 0.7);
+          box-shadow: 0 0 15px rgba($c-red, 0.15);
+
+          & + .input-icon, 
+          & ~ .input-icon {
+            color: $c-red;
+          }
+        }
+      }
+    }
+  }
+
+  .form-options {
+    display: flex;
+    justify-content: flex-end;
+
+    .forgot-password {
+      background: none;
+      border: none;
+      color: $t-muted;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $t-main;
+        text-decoration: underline;
+        text-decoration-color: $c-crimson;
+      }
+    }
+  }
+
+  // Primary Action Button
+  .submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    color: $t-main;
+    font-family: $font-mono;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba($c-red, 0.2);
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba($c-red, 0.4);
+      filter: brightness(1.1);
+
+      .btn-icon {
+        transform: translateX(4px);
+      }
+    }
+
+    .btn-icon {
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+// Footer Navigation
+.auth-footer {
+  margin-top: 32px;
+  text-align: center;
+  border-top: 1px solid rgba($t-muted, 0.2);
+  padding-top: 24px;
+
+  p {
+    color: $t-muted;
+    font-size: 0.9rem;
+  }
+
+  .nav-link {
+    color: $c-red;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: $t-main;
+      text-shadow: 0 0 10px rgba($c-red, 0.5);
+    }
+  }
+}
+
+// Keyframes
+@keyframes riseUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { text-shadow: 0 0 5px rgba($c-red, 0.2); }
+  50% { text-shadow: 0 0 15px rgba($c-red, 0.8); }
+  100% { text-shadow: 0 0 5px rgba($c-red, 0.2); }
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -30px) scale(1.1); }
+}
+
+@keyframes gridMove {
+  0% { transform: rotateX(45deg) translateY(0); }
+  100% { transform: rotateX(45deg) translateY(50px); }
+}
+
+@media (max-width: 600px) {
+  .auth-card {
+    padding: 30px 20px;
+    border-radius: 12px;
+  }
+  .auth-header h2 { font-size: 1.5rem; }
+}

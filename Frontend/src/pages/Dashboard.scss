@@ -1,0 +1,326 @@
+@use "sass:color";
+
+// TrimLink Core Variables
+$c-black: #000000;
+$c-dark: #3D0000;
+$c-crimson: #950101;
+$c-red: #FF0000;
+$t-main: #FFFFFF;
+$t-muted: #9CA3AF;
+$font-sans: 'Inter', sans-serif;
+$font-mono: 'Fira Code', monospace;
+
+// Layout & Background
+.dashboard-container {
+  position: relative;
+  min-height: 100vh;
+  background: radial-gradient(circle at top center, $c-dark 0%, $c-black 80%);
+  font-family: $font-sans;
+  overflow-x: hidden;
+  padding: 24px;
+}
+
+// Background Grid & Orbs
+.bg-grid {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: linear-gradient(rgba($c-crimson, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($c-crimson, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: rotateX(45deg);
+  perspective: 1000px;
+  z-index: 0;
+  pointer-events: none;
+  animation: gridMove 30s linear infinite;
+}
+
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 1;
+  opacity: 0.3;
+  pointer-events: none;
+
+  &.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: $c-crimson;
+    top: -200px;
+    right: -100px;
+  }
+}
+
+// Reusable Glass Panel
+.glass-panel {
+  background: linear-gradient(145deg, rgba($c-dark, 0.4), rgba($c-black, 0.7));
+  border: 1px solid rgba($c-crimson, 0.3);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba($c-crimson, 0.05);
+}
+
+// Main Wrapper
+.dashboard-layout {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  
+  // Forces the layout completely below your global absolute/fixed navbar
+  margin: 120px auto 0 auto; 
+  
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+// Header Greeting
+.dashboard-header {
+  padding: 20px 0;
+  animation: fadeIn 0.8s ease-out forwards;
+
+  h1 {
+    color: $t-main;
+    font-family: $font-mono;
+    font-size: 2.5rem;
+    font-weight: 400;
+    margin: 0;
+
+    .highlight-name {
+      color: $c-red;
+      text-shadow: 0 0 15px rgba($c-red, 0.4);
+    }
+
+    .cursor-blink {
+      color: $c-red;
+      animation: blink 1s step-end infinite;
+    }
+  }
+}
+
+// Main Content Box
+.dashboard-main {
+  border-radius: 16px;
+  padding: 32px;
+  min-height: 500px;
+  animation: riseUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+// Controls Row (All Links / Add Links)
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      color: $t-main;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .title-icon {
+      color: $c-red;
+    }
+  }
+
+  .add-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: $t-main;
+    font-family: $font-mono;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba($c-red, 0.2);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba($c-red, 0.4);
+      filter: brightness(1.2);
+    }
+  }
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba($c-crimson, 0.5) 0%, transparent 100%);
+  margin-bottom: 24px;
+}
+
+// Premium UX: Links Data Table
+.links-data-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    padding: 0 16px 12px 16px;
+    color: $t-muted;
+    font-family: $font-mono;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba($t-muted, 0.2);
+  }
+
+  .data-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: center;
+    background: rgba(#000000, 0.4);
+    border: 1px solid rgba($c-crimson, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(#000000, 0.6);
+      border-color: rgba($c-crimson, 0.4);
+      transform: translateX(4px);
+      box-shadow: -4px 0 0 $c-red;
+    }
+
+    .target-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .short-link {
+        color: $t-main;
+        font-family: $font-mono;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .long-link {
+        color: $t-muted;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90%;
+      }
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: $t-muted;
+      font-family: $font-mono;
+      font-size: 0.85rem;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: $font-mono;
+
+      &.active {
+        color: #10B981; 
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10B981;
+          box-shadow: 0 0 8px #10B981;
+        }
+      }
+
+      &.routing {
+        color: #F59E0B; 
+        .spin-icon {
+          animation: spin 3s linear infinite;
+        }
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+
+      .icon-btn {
+        background: transparent;
+        border: 1px solid rgba($t-muted, 0.2);
+        color: $t-muted;
+        padding: 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: $c-red;
+          border-color: $c-red;
+          background: rgba($c-red, 0.1);
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes gridMove {
+  0% { transform: rotateX(45deg) translateY(0); }
+  100% { transform: rotateX(45deg) translateY(50px); }
+}
+
+@keyframes riseUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .links-data-view .table-header {
+    display: none;
+  }
+
+  .links-data-view .data-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+
+    .actions {
+      justify-content: flex-start;
+    }
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+}

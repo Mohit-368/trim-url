@@ -1,0 +1,479 @@
+@use "sass:color";
+
+// TrimLink Core Variables
+$c-black: #000000;
+$c-dark: #3D0000;
+$c-crimson: #950101;
+$c-red: #FF0000;
+$t-main: #FFFFFF;
+$t-muted: #9CA3AF;
+$font-sans: 'Inter', sans-serif;
+$font-mono: 'Fira Code', monospace;
+
+// Layout Base
+.analytics-container {
+  position: relative;
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, $c-dark 0%, $c-black 70%);
+  font-family: $font-sans;
+  overflow-x: hidden;
+  padding: 24px;
+}
+
+// Background Grid
+.bg-grid {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: linear-gradient(rgba($c-crimson, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($c-crimson, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: rotateX(60deg);
+  perspective: 1000px;
+  z-index: 0;
+  pointer-events: none;
+  animation: gridMove 40s linear infinite;
+}
+
+.bg-orb {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: $c-crimson;
+  filter: blur(120px);
+  z-index: 1;
+  opacity: 0.25;
+  top: -200px;
+  left: -200px;
+  pointer-events: none;
+}
+
+// Glass Panel Utility
+.glass-panel {
+  background: linear-gradient(145deg, rgba($c-dark, 0.5), rgba($c-black, 0.8));
+  border: 1px solid rgba($c-crimson, 0.4);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba($c-crimson, 0.1);
+  border-radius: 12px;
+}
+
+// Main Wrapper (Clears absolute navbars via margin-top)
+.analytics-layout {
+  position: relative;
+  z-index: 10;
+  max-width: 1100px;
+  margin: 100px auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ==============================
+   HEADER & META DATA
+   ============================== */
+.analytics-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInDown 0.6s ease-out forwards;
+
+  .back-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: $t-muted;
+    font-family: $font-mono;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: $c-red;
+    }
+  }
+
+  .link-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    
+    .meta-info {
+      h2 {
+        color: $t-main;
+        font-size: 1.8rem;
+        font-family: $font-mono;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.5px;
+      }
+
+      .target-url {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: $t-muted;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $t-main;
+        }
+      }
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(#000, 0.5);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba($c-red, 0.3);
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: $c-red;
+        box-shadow: 0 0 10px $c-red;
+        
+        &.blink {
+          animation: pulseRed 2s infinite;
+        }
+      }
+
+      .status-text {
+        color: $c-red;
+        font-family: $font-mono;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+}
+
+/* ==============================
+   MASTER ROW & EXPORT MODULE
+   ============================== */
+.master-controls-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+
+  .master-stat {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 32px;
+    
+    .stat-icon {
+      color: $c-red;
+      filter: drop-shadow(0 0 15px rgba($c-red, 0.6));
+    }
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+
+      .stat-label {
+        color: $t-muted;
+        font-family: $font-mono;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        color: $t-main;
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        text-shadow: 0 0 20px rgba($c-red, 0.3);
+      }
+    }
+  }
+
+  .export-module {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    gap: 20px;
+
+    .qr-display {
+      flex-shrink: 0;
+      
+      .qr-frame {
+        width: 90px;
+        height: 90px;
+        padding: 6px;
+        background: $c-black;
+        border: 1px solid rgba($c-crimson, 0.6);
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba($c-red, 0.2);
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 4px;
+        }
+      }
+    }
+
+    .export-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: $font-mono;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &.outline {
+          background: rgba($c-crimson, 0.1);
+          border: 1px solid rgba($c-crimson, 0.5);
+          color: $c-red;
+
+          &:hover {
+            background: rgba($c-crimson, 0.2);
+            box-shadow: 0 0 10px rgba($c-red, 0.2);
+          }
+        }
+
+        &.solid {
+          background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
+          border: none;
+          color: $t-main;
+          box-shadow: 0 4px 15px rgba($c-red, 0.2);
+
+          &:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 6px 20px rgba($c-red, 0.4);
+            transform: translateY(-1px);
+          }
+
+          .dl-icon {
+            margin-left: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ==============================
+   DATA GRID & PURE CSS CHARTS
+   ============================== */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.metric-card {
+  padding: 24px;
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba($c-crimson, 0.3);
+    padding-bottom: 16px;
+
+    .card-icon {
+      color: $c-red;
+    }
+
+    h3 {
+      color: $t-main;
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
+
+  .chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .data-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .data-label {
+        width: 120px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: $t-main;
+        font-size: 0.95rem;
+
+        .text-muted { color: $t-muted; }
+        .capitalize { text-transform: capitalize; }
+      }
+
+      .bar-track {
+        flex-grow: 1;
+        height: 8px;
+        background: rgba(#000, 0.6);
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid rgba($t-muted, 0.1);
+
+        .bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
+          border-radius: 4px;
+          box-shadow: 0 0 10px rgba($c-red, 0.5);
+          width: 0; 
+          animation: fillBar 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        // Dart Sass 3.0.0 compliant color adjustments
+        .geo-fill {
+          background: linear-gradient(
+            90deg, 
+            color.adjust($c-crimson, $lightness: -5%) 0%, 
+            color.adjust($c-crimson, $lightness: 15%) 100%
+          );
+        }
+      }
+
+      .data-values {
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        font-family: $font-mono;
+
+        .count {
+          color: $t-main;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        .percent {
+          color: $c-red;
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+/* ==============================
+   HTML2CANVAS EXPORT UTILITIES
+   ============================== */
+@media print {
+  .hide-on-print {
+    display: none !important;
+  }
+}
+
+[data-html2canvas-ignore="true"],
+.hide-on-print {
+  // Handled by inline JS or print media query above
+}
+
+/* ==============================
+   KEYFRAMES
+   ============================== */
+@keyframes gridMove {
+  0% { transform: rotateX(60deg) translateY(0); }
+  100% { transform: rotateX(60deg) translateY(40px); }
+}
+
+@keyframes pulseRed {
+  0% { box-shadow: 0 0 0 0 rgba($c-red, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba($c-red, 0); }
+  100% { box-shadow: 0 0 0 0 rgba($c-red, 0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fillBar {
+  from { width: 0; }
+}
+
+/* ==============================
+   RESPONSIVE MEDIA QUERIES
+   ============================== */
+@media (max-width: 900px) {
+  .analytics-header .link-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .master-controls-row {
+    grid-template-columns: 1fr; 
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .master-stat .stat-content .stat-value {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .metric-card .chart-container .data-row {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .data-label {
+      width: 50%;
+    }
+    .data-values {
+      width: 40%;
+      align-items: flex-start;
+      flex-direction: row;
+      gap: 10px;
+    }
+    .bar-track {
+      width: 100%;
+      order: 3;
+    }
+  }
+}

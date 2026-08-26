@@ -1,0 +1,458 @@
+@use "sass:color";
+@use "sass:math";
+
+// TrimLink Core Variables
+$c-black: #000000;
+$c-dark: #3D0000;
+$c-crimson: #950101;
+$c-red: #FF0000;
+$t-main: #FFFFFF;
+$t-muted: #9CA3AF;
+$font-sans: 'Inter', sans-serif;
+$font-mono: 'Fira Code', monospace;
+
+// Layout Base
+.notfound-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, $c-dark 0%, $c-black 70%);
+  font-family: $font-sans;
+  overflow: hidden;
+  padding: 24px;
+}
+
+// Background Grid
+.bg-grid {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image:
+    linear-gradient(rgba($c-crimson, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($c-crimson, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: rotateX(45deg);
+  perspective: 1000px;
+  z-index: 0;
+  pointer-events: none;
+  animation: gridMove 20s linear infinite;
+}
+
+// Glowing Orbs
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 1;
+  opacity: 0.3;
+  pointer-events: none;
+
+  &.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: $c-crimson;
+    top: -100px;
+    left: -100px;
+    animation: floatOrb 10s ease-in-out infinite alternate;
+  }
+
+  &.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: $c-red;
+    bottom: -50px;
+    right: -50px;
+    animation: floatOrb 12s ease-in-out infinite alternate-reverse;
+  }
+}
+
+// Main Wrapper
+.notfound-layout {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ==============================
+   CSS GLITCH EFFECT
+   ============================== */
+
+.glitch-wrapper {
+  position: relative;
+
+  .glitch {
+    font-size: 8rem;
+    font-weight: 800;
+    font-family: $font-mono;
+    color: $t-main;
+    margin: 0;
+    line-height: 1;
+    position: relative;
+    text-shadow: 0 0 20px rgba($c-red, 0.5);
+
+    &::before,
+    &::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    &::before {
+      left: 3px;
+      text-shadow: -2px 0 $c-red;
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim 5s infinite linear alternate-reverse;
+    }
+
+    &::after {
+      left: -3px;
+      text-shadow: -2px 0 rgba($t-muted, 0.5);
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim2 5s infinite linear alternate-reverse;
+    }
+  }
+}
+
+/* ==============================
+   TERMINAL ANIMATION
+   ============================== */
+
+.glass-panel {
+  background: linear-gradient(
+    145deg,
+    rgba($c-dark, 0.6),
+    rgba($c-black, 0.8)
+  );
+  border: 1px solid rgba($c-crimson, 0.5);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    inset 0 0 20px rgba($c-crimson, 0.1);
+  border-radius: 12px;
+  width: 100%;
+  overflow: hidden;
+  text-align: left;
+}
+
+.terminal-box {
+  .terminal-header {
+    background: rgba(#000, 0.8);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba($c-crimson, 0.3);
+    color: $t-muted;
+    font-family: $font-mono;
+    font-size: 0.8rem;
+    gap: 8px;
+
+    .term-icon {
+      color: $c-red;
+    }
+
+    .term-controls {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+
+      span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba($t-muted, 0.3);
+
+        &:nth-child(1) {
+          background: rgba($c-red, 0.6);
+        }
+      }
+    }
+  }
+
+  .terminal-body {
+    padding: 24px;
+    font-family: $font-mono;
+    font-size: 0.9rem;
+    color: $t-muted;
+    line-height: 1.6;
+
+    .prompt {
+      color: $c-red;
+      margin-right: 8px;
+    }
+
+    .error {
+      color: $c-red;
+      font-weight: 700;
+    }
+
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      margin: 0 0 8px 0;
+      width: 0;
+
+      &.line-1 {
+        animation: typing 1.5s steps(40, end) forwards;
+      }
+
+      &.line-2 {
+        animation: typing 1.5s steps(40, end) forwards;
+        animation-delay: 1.5s;
+      }
+
+      &.line-3 {
+        animation: typing 1.5s steps(40, end) forwards;
+        animation-delay: 3s;
+      }
+
+      &.line-4 {
+        animation: typing 2s steps(40, end) forwards;
+        animation-delay: 4.5s;
+        color: $t-main;
+      }
+
+      &.line-5 {
+        animation: typing 0.1s steps(40, end) forwards;
+        animation-delay: 6.5s;
+      }
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: $c-red;
+      animation: blink 1s step-end infinite;
+    }
+  }
+}
+
+/* ==============================
+   BUTTONS & BADGES
+   ============================== */
+
+.recovery-actions {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+  animation: riseUp 0.6s ease forwards;
+  animation-delay: 7s;
+  opacity: 0;
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-family: $font-mono;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+    max-width: 200px;
+
+    &.outline {
+      background: rgba($c-crimson, 0.1);
+      border: 1px solid rgba($c-crimson, 0.5);
+      color: $t-main;
+
+      &:hover {
+        background: rgba($c-crimson, 0.2);
+        box-shadow: 0 0 15px rgba($c-red, 0.2);
+      }
+    }
+
+    &.solid {
+      background: linear-gradient(
+        90deg,
+        $c-crimson 0%,
+        $c-red 100%
+      );
+      border: none;
+      color: $t-main;
+      box-shadow: 0 4px 15px rgba($c-red, 0.2);
+
+      &:hover {
+        filter: brightness(1.2);
+        box-shadow: 0 8px 25px rgba($c-red, 0.4);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $c-red;
+  font-family: $font-mono;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+  animation-delay: 6.5s;
+
+  .spin-slow {
+    animation: spin 4s linear infinite;
+  }
+}
+
+/* ==============================
+   KEYFRAMES
+   ============================== */
+
+@keyframes gridMove {
+  0% {
+    transform: rotateX(45deg) translateY(0);
+  }
+
+  100% {
+    transform: rotateX(45deg) translateY(50px);
+  }
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes riseUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Random structural noise for the glitch effect
+@keyframes glitch-anim {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{math.percentage(math.div($i, $steps))} {
+      clip: rect(
+        math.random(100) + px,
+        9999px,
+        math.random(100) + px,
+        0
+      );
+
+      transform: skew(
+        math.div(math.random(100), 100) * 1deg
+      );
+    }
+  }
+}
+
+@keyframes glitch-anim2 {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{math.percentage(math.div($i, $steps))} {
+      clip: rect(
+        math.random(100) + px,
+        9999px,
+        math.random(100) + px,
+        0
+      );
+
+      transform: skew(
+        math.div(math.random(100), 100) * 1deg
+      );
+    }
+  }
+}
+
+/* ==============================
+   RESPONSIVE MEDIA QUERIES
+   ============================== */
+
+@media (max-width: 600px) {
+  .glitch-wrapper .glitch {
+    font-size: 5rem;
+  }
+
+  .recovery-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .recovery-actions .action-btn {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .terminal-box .terminal-body {
+    font-size: 0.8rem;
+    padding: 16px;
+  }
+}
