@@ -1,69 +1,69 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { 
-  ArrowLeft, 
-  Activity, 
-  Globe2, 
-  Cpu, 
-  Smartphone, 
-  Monitor, 
+import {
+  ArrowLeft,
+  Activity,
+  Globe2,
+  Cpu,
+  Smartphone,
+  Monitor,
   Tablet,
   MapPin,
   ExternalLink,
   QrCode,
   Download,
-  FileText
+  FileText,
+  Terminal
 } from 'lucide-react';
+import { useAnalytics } from '../hooks/useAnalytics';
 import './LinkAnalytics.scss';
 
 const LinkAnalytics = () => {
-  // Reference for the PDF exporter to capture the layout
+  const { id } = useParams();
+  const navigate = useNavigate();
   const printRef = useRef();
+  const { link, status, error, fetchAnalytics } = useAnalytics();
 
-  // 1. Mock DB Data (Now includes a base64 or URL for the QR Code)
-  const dbData = {
-    total_clicks: 8432,
-    qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=trim.link/api-v2&color=FF0000&bgcolor=000000",
-    country: { 'United States': 3210, 'India': 2150, 'Germany': 1420, 'Japan': 890, 'Brazil': 762 },
-    devices: { 'desktop': 3800, 'android': 2400, 'iphone': 1932, 'tablet': 300 }
-  };
+  useEffect(() => {
+    if (id) fetchAnalytics(id);
+  }, [id, fetchAnalytics]);
 
-  const processTelemetry = (dataObj, total) => {
+  // device/demographics come back as plain objects (Mongoose Maps serialize
+  // that way over JSON) — e.g. { mobile: 12, desktop: 4 } or { US: 9, IN: 3 }.
+  const processTelemetry = (dataObj = {}, total = 0) => {
     return Object.entries(dataObj)
       .map(([key, value]) => ({
         name: key,
         count: value,
-        percent: ((value / total) * 100).toFixed(1)
+        percent: total > 0 ? ((value / total) * 100).toFixed(1) : '0.0',
       }))
       .sort((a, b) => b.count - a.count);
   };
 
-  const countryStats = processTelemetry(dbData.country, dbData.total_clicks);
-  const deviceStats = processTelemetry(dbData.devices, dbData.total_clicks);
-
   const getDeviceIcon = (name) => {
     const lower = name.toLowerCase();
-    if (lower.includes('desktop')) return <Monitor size={18} />;
-    if (lower.includes('android') || lower.includes('iphone')) return <Smartphone size={18} />;
-    return <Tablet size={18} />;
+    if (lower === 'mobile') return <Smartphone size={18} />;
+    if (lower === 'tablet') return <Tablet size={18} />;
+    return <Monitor size={18} />;
   };
 
-  // --- EXPORT FUNCTIONS ---
   const downloadQR = async () => {
+    if (!link?.qr_code) return;
     try {
-      const response = await fetch(dbData.qr_code_url);
+      const response = await fetch(link.qr_code);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'trimlink-qr-code.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${link.trim_link || 'trimlink'}-qr-code.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download QR:", error);
+    } catch (err) {
+      console.error('Failed to download QR:', err);
     }
   };
 
@@ -71,43 +71,71 @@ const LinkAnalytics = () => {
     const element = printRef.current;
     if (!element) return;
 
-    // Capture the DOM element as a canvas
-    const canvas = await html2canvas(element, { 
+    const canvas = await html2canvas(element, {
       backgroundColor: '#000000',
-      scale: 2 // Higher resolution for crisp text
+      scale: 2,
     });
-    
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    // Calculate aspect ratio to fit A4 page
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
+
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('trimlink-telemetry-report.pdf');
+    pdf.save(`${link?.trim_link || 'trimlink'}-telemetry-report.pdf`);
   };
+
+  if (status === 'loading' || status === 'idle') {
+    return (
+      <div className="analytics-container">
+        <p style={{ padding: '160px 24px', textAlign: 'center', color: '#9CA3AF' }}>
+          Loading telemetry…
+        </p>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="analytics-container">
+        <div style={{ padding: '160px 24px', textAlign: 'center' }}>
+          <div className="error-banner" style={{ display: 'inline-flex' }}>
+            <Terminal size={16} />
+            <span>{error || 'Failed to load this link.'}</span>
+          </div>
+          <div style={{ marginTop: 24 }}>
+            <button className="action-btn outline" onClick={() => navigate('/dashboard')}>
+              <ArrowLeft size={18} />
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalClicks = link.clicks || 0;
+  const deviceStats = processTelemetry(link.device, totalClicks);
+  const countryStats = processTelemetry(link.demographics, totalClicks);
 
   return (
     <div className="analytics-container">
       <div className="bg-grid"></div>
       <div className="bg-orb orb-1"></div>
 
-      {/* Attach the ref here so the PDF captures the layout without the back button */}
       <div className="analytics-layout" ref={printRef}>
-        
+
         <header className="analytics-header">
-          {/* We hide the back button during PDF print via SCSS */}
-          <button className="back-btn hide-on-print">
+          <button className="back-btn hide-on-print" onClick={() => navigate('/dashboard')}>
             <ArrowLeft size={18} />
             <span>Back to Dashboard</span>
           </button>
-          
+
           <div className="link-meta glass-panel">
             <div className="meta-info">
-              <h2>trim.link/api-v2</h2>
-              <a href="https://backend.domain.com/docs/api-v2" className="target-url">
-                https://backend.domain.com/docs/api-v2 <ExternalLink size={14} />
+              <h2>{link.trim_link}</h2>
+              <a href={link.original_link} target="_blank" rel="noreferrer" className="target-url">
+                {link.original_link} <ExternalLink size={14} />
               </a>
             </div>
             <div className="live-status">
@@ -117,46 +145,47 @@ const LinkAnalytics = () => {
           </div>
         </header>
 
-        {/* Master Stat & Export Controls Row */}
         <div className="master-controls-row">
           <div className="master-stat glass-panel">
             <Activity size={32} className="stat-icon" />
             <div className="stat-content">
               <span className="stat-label">Total Resolves (All Time)</span>
-              <span className="stat-value">{dbData.total_clicks.toLocaleString()}</span>
+              <span className="stat-value">{totalClicks.toLocaleString()}</span>
             </div>
           </div>
 
-          {/* NEW: Export & QR Code Module */}
-          <div className="export-module glass-panel">
-            <div className="qr-display">
-              <div className="qr-frame">
-                <img src={dbData.qr_code_url} alt="Routing QR Code" crossOrigin="anonymous" />
+          {link.qr_code && (
+            <div className="export-module glass-panel">
+              <div className="qr-display">
+                <div className="qr-frame">
+                  <img src={link.qr_code} alt="Routing QR Code" crossOrigin="anonymous" />
+                </div>
+              </div>
+              <div className="export-actions hide-on-print">
+                <button onClick={downloadQR} className="action-btn outline">
+                  <QrCode size={16} />
+                  <span>Save QR</span>
+                </button>
+                <button onClick={downloadPDF} className="action-btn solid">
+                  <FileText size={16} />
+                  <span>Export PDF</span>
+                  <Download size={16} className="dl-icon" />
+                </button>
               </div>
             </div>
-            <div className="export-actions hide-on-print">
-              <button onClick={downloadQR} className="action-btn outline">
-                <QrCode size={16} />
-                <span>Save QR</span>
-              </button>
-              <button onClick={downloadPDF} className="action-btn solid">
-                <FileText size={16} />
-                <span>Export PDF</span>
-                <Download size={16} className="dl-icon" />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Data Grid */}
         <div className="metrics-grid">
-          {/* Card 1: Device Telemetry */}
           <div className="metric-card glass-panel">
             <div className="card-header">
               <Cpu size={20} className="card-icon" />
-              <h3>Hardware / OS Origin</h3>
+              <h3>Device Breakdown</h3>
             </div>
             <div className="chart-container">
+              {deviceStats.length === 0 && (
+                <p className="empty-state">No clicks recorded yet.</p>
+              )}
               {deviceStats.map((device, index) => (
                 <div className="data-row" key={index}>
                   <div className="data-label">
@@ -175,18 +204,20 @@ const LinkAnalytics = () => {
             </div>
           </div>
 
-          {/* Card 2: Geo-Demographics */}
           <div className="metric-card glass-panel">
             <div className="card-header">
               <Globe2 size={20} className="card-icon" />
               <h3>Geographic Routing</h3>
             </div>
             <div className="chart-container">
+              {countryStats.length === 0 && (
+                <p className="empty-state">No clicks recorded yet.</p>
+              )}
               {countryStats.map((country, index) => (
                 <div className="data-row" key={index}>
                   <div className="data-label">
                     <MapPin size={16} className="text-muted" />
-                    <span className="name capitalize">{country.name}</span>
+                    <span className="name">{country.name}</span>
                   </div>
                   <div className="bar-track">
                     <div className="bar-fill geo-fill" style={{ width: `${country.percent}%` }}></div>

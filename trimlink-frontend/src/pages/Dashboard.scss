@@ -163,6 +163,99 @@ $font-mono: 'Fira Code', monospace;
   margin-bottom: 24px;
 }
 
+// Inline create-link form (toggled by the "add links" button)
+.create-link-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(#000000, 0.4);
+  border: 1px solid rgba($c-crimson, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  animation: riseUp 0.3s ease forwards;
+
+  .error-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba($c-red, 0.1);
+    border-left: 4px solid $c-red;
+    color: $t-main;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: $font-mono;
+  }
+
+  .create-link-fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      color: $t-muted;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(#000000, 0.5);
+      border: 1px solid rgba($c-crimson, 0.3);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: $t-main;
+      font-family: $font-mono;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+
+      &::placeholder {
+        color: rgba($t-muted, 0.4);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $c-red;
+        background: rgba(#000000, 0.7);
+        box-shadow: 0 0 15px rgba($c-red, 0.15);
+      }
+    }
+  }
+
+  .add-link-btn {
+    align-self: flex-start;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .create-link-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.empty-state {
+  color: $t-muted;
+  font-family: $font-mono;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
 // Premium UX: Links Data Table
 .links-data-view {
   display: flex;
@@ -237,12 +330,16 @@ $font-mono: 'Fira Code', monospace;
       font-weight: 500;
       font-family: $font-mono;
 
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: $t-muted;
+      }
+
       &.active {
         color: #10B981; 
         .status-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
           background: #10B981;
           box-shadow: 0 0 8px #10B981;
         }

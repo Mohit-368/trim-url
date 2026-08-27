@@ -1,38 +1,42 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { User, LockKeyhole, Mail, ArrowRight, ShieldCheck, Code2, Terminal } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, LockKeyhole, ArrowRight, Code2, Terminal } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import './Auth.scss'; // Importing the shared SCSS
 
-const Register = () => {
+const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
-    username: '', // Now acts as a non-unique display name
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Front-end Validation checks
-    if (formData.password.length < 8) {
-      setError('Passphrase must contain at least 8 characters.');
-      return;
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passphrase mismatch. Please verify integrity.');
+
+    if (!formData.email || !formData.password) {
+      setError('Missing credentials. Please provide all fields.');
       return;
     }
 
-    // Mock Registration Execution
-    console.log('Initializing new node:', formData.email);
+    setSubmitting(true);
+    try {
+      await login(formData.email, formData.password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.data?.message || 'Invalid email or password.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -48,8 +52,8 @@ const Register = () => {
             <Code2 size={20} className="brand-icon" />
             <span>TrimLink.sys</span>
           </div>
-          <h2>Create Credentials</h2>
-          <p>Register your node for enterprise link management.</p>
+          <h2>Initiate Session</h2>
+          <p>Authenticate to access your routing dashboard.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -59,22 +63,6 @@ const Register = () => {
               <span>{error}</span>
             </div>
           )}
-
-          <div className="form-group">
-            <label htmlFor="username">Name / Alias</label>
-            <div className="input-wrapper">
-              <User className="input-icon" size={18} />
-              <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="dev_user1"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
 
           <div className="form-group">
             <label htmlFor="email">Secure Email</label>
@@ -104,38 +92,21 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                minLength={8}
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Verify Passphrase</label>
-            <div className="input-wrapper">
-              <ShieldCheck className="input-icon" size={18} />
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="••••••••••••"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-
-          <button type="submit" className="submit-btn">
-            <span>Initialize Account</span>
+          <button type="submit" className="submit-btn" disabled={submitting}>
+            <span>{submitting ? 'Authenticating…' : 'Execute Login'}</span>
             <ArrowRight size={18} className="btn-icon" />
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Already have clearance?{' '}
-            <Link to="/login" className="nav-link">
-              Authenticate Here
+            Don't have an access node?{' '}
+            <Link to="/register" className="nav-link">
+              Request Access
             </Link>
           </p>
         </div>
@@ -144,4 +115,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
