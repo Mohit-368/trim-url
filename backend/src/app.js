@@ -18,7 +18,7 @@ app.set("trust proxy", 1);
 // and the origin echoed back explicitly (credentials + "*" is not allowed).
 app.use(
   cors({
-    origin: "https://trimlink-livid.vercel.app/",
+    origin: "https://trimlink-livid.vercel.app",
     credentials: true,
   })
 );
