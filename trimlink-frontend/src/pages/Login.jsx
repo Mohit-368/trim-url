@@ -2,16 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, LockKeyhole, ArrowRight, Code2, Terminal } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import './Auth.scss'; // Importing the shared SCSS
+import './Auth.scss';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -41,7 +38,6 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      {/* Background Ambience */}
       <div className="bg-grid"></div>
       <div className="bg-orb orb-1"></div>
       <div className="bg-orb orb-2"></div>
@@ -72,6 +68,7 @@ const Login = () => {
                 type="email"
                 id="email"
                 name="email"
+                autoComplete="email"
                 placeholder="dev@domain.com"
                 value={formData.email}
                 onChange={handleInputChange}
@@ -88,6 +85,7 @@ const Login = () => {
                 type="password"
                 id="password"
                 name="password"
+                autoComplete="current-password"
                 placeholder="••••••••••••"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -105,9 +103,7 @@ const Login = () => {
         <div className="auth-footer">
           <p>
             Don't have an access node?{' '}
-            <Link to="/register" className="nav-link">
-              Request Access
-            </Link>
+            <Link to="/register" className="nav-link">Request Access</Link>
           </p>
         </div>
       </div>

@@ -7,11 +7,14 @@ $c-crimson: #950101;
 $c-red: #FF0000;
 $t-main: #FFFFFF;
 $t-muted: #9CA3AF;
-$font-sans: 'Inter', sans-serif;
-$font-mono: 'Fira Code', monospace;
+$font-sans: 'Inter', system-ui, sans-serif;
+$font-mono: 'Fira Code', 'Courier New', monospace;
 
 // Layout Base
 .analytics-container {
+  // CRITICAL FIX: Stops nested elements (especially flex/grid children) from blowing past 100vw
+  *, *::before, *::after { box-sizing: border-box; }
+
   position: relative;
   min-height: 100vh;
   background: radial-gradient(circle at top right, $c-dark 0%, $c-black 70%);
@@ -20,47 +23,51 @@ $font-mono: 'Fira Code', monospace;
   padding: 24px;
 }
 
-// Background Grid
+// Background Grid (GPU Accelerated)
 .bg-grid {
   position: fixed;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background-image: linear-gradient(rgba($c-crimson, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba($c-crimson, 0.1) 1px, transparent 1px);
+  background-image: 
+    linear-gradient(rgba($c-crimson, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($c-crimson, 0.15) 1px, transparent 1px);
   background-size: 40px 40px;
   transform: rotateX(60deg);
+  transform-origin: center;
   perspective: 1000px;
   z-index: 0;
   pointer-events: none;
   animation: gridMove 40s linear infinite;
+  will-change: transform;
 }
 
+// Performance-friendly Glow Orb
 .bg-orb {
   position: fixed;
-  width: 600px;
-  height: 600px;
+  width: clamp(400px, 50vw, 700px);
+  height: clamp(400px, 50vw, 700px);
   border-radius: 50%;
-  background: $c-crimson;
-  filter: blur(120px);
+  background: radial-gradient(circle, rgba($c-crimson, 0.25) 0%, transparent 65%);
   z-index: 1;
-  opacity: 0.25;
-  top: -200px;
-  left: -200px;
+  top: -10vw;
+  left: -10vw;
   pointer-events: none;
+  will-change: transform;
 }
 
 // Glass Panel Utility
 .glass-panel {
-  background: linear-gradient(145deg, rgba($c-dark, 0.5), rgba($c-black, 0.8));
+  background: linear-gradient(145deg, rgba($c-dark, 0.4), rgba($c-black, 0.7));
   border: 1px solid rgba($c-crimson, 0.4);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba($c-crimson, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba($c-crimson, 0.1);
   border-radius: 12px;
 }
 
-// Main Wrapper (Clears absolute navbars via margin-top)
+// Main Wrapper
 .analytics-layout {
   position: relative;
   z-index: 10;
@@ -80,21 +87,30 @@ $font-mono: 'Fira Code', monospace;
   gap: 16px;
   animation: fadeInDown 0.6s ease-out forwards;
 
+  // Premium Back Button
   .back-btn {
     align-self: flex-start;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: transparent;
-    border: none;
+    background: rgba($c-black, 0.5);
+    border: 1px solid rgba($c-crimson, 0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
     color: $t-muted;
     font-family: $font-mono;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
 
     &:hover {
-      color: $c-red;
+      color: $t-main;
+      background: rgba($c-crimson, 0.2);
+      border-color: $c-red;
+      box-shadow: 0 0 15px rgba($c-red, 0.2);
+      transform: translateX(-4px);
     }
   }
 
@@ -102,15 +118,17 @@ $font-mono: 'Fira Code', monospace;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px;
+    padding: clamp(16px, 3vw, 24px);
+    flex-wrap: wrap;
+    gap: 16px;
     
     .meta-info {
       h2 {
         color: $t-main;
-        font-size: 1.8rem;
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
         font-family: $font-mono;
         margin: 0 0 8px 0;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.02em;
       }
 
       .target-url {
@@ -119,12 +137,11 @@ $font-mono: 'Fira Code', monospace;
         gap: 6px;
         color: $t-muted;
         text-decoration: none;
-        font-size: 0.95rem;
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
         transition: color 0.2s ease;
+        word-break: break-all; // Prevents long URLs from breaking flex container
 
-        &:hover {
-          color: $t-main;
-        }
+        &:hover { color: $c-red; }
       }
     }
 
@@ -132,27 +149,26 @@ $font-mono: 'Fira Code', monospace;
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(#000, 0.5);
+      background: rgba($c-black, 0.8);
       padding: 8px 16px;
-      border-radius: 20px;
+      border-radius: 50px;
       border: 1px solid rgba($c-red, 0.3);
+      box-shadow: inset 0 0 10px rgba($c-red, 0.1);
 
       .status-dot {
-        width: 10px;
-        height: 10px;
+        width: 8px; height: 8px;
         border-radius: 50%;
         background: $c-red;
         box-shadow: 0 0 10px $c-red;
         
-        &.blink {
-          animation: pulseRed 2s infinite;
-        }
+        &.blink { animation: pulseRed 2s infinite; }
       }
 
       .status-text {
         color: $c-red;
         font-family: $font-mono;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
@@ -165,7 +181,7 @@ $font-mono: 'Fira Code', monospace;
    ============================== */
 .master-controls-row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
   animation: fadeInUp 0.6s ease-out forwards;
   animation-delay: 0.1s;
@@ -174,22 +190,25 @@ $font-mono: 'Fira Code', monospace;
   .master-stat {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 32px;
+    gap: clamp(16px, 3vw, 24px);
+    padding: clamp(24px, 4vw, 32px);
     
     .stat-icon {
       color: $c-red;
       filter: drop-shadow(0 0 15px rgba($c-red, 0.6));
+      flex-shrink: 0;
     }
 
     .stat-content {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
 
       .stat-label {
         color: $t-muted;
         font-family: $font-mono;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1.5px;
         margin-bottom: 4px;
@@ -197,10 +216,11 @@ $font-mono: 'Fira Code', monospace;
 
       .stat-value {
         color: $t-main;
-        font-size: 3.5rem;
+        font-size: clamp(2.5rem, 6vw, 3.5rem);
         font-weight: 700;
+        font-family: $font-mono;
         line-height: 1;
-        text-shadow: 0 0 20px rgba($c-red, 0.3);
+        text-shadow: 0 0 25px rgba($c-red, 0.4);
       }
     }
   }
@@ -208,28 +228,22 @@ $font-mono: 'Fira Code', monospace;
   .export-module {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    gap: 20px;
+    padding: clamp(16px, 3vw, 24px);
+    gap: clamp(16px, 3vw, 24px);
 
     .qr-display {
       flex-shrink: 0;
       
       .qr-frame {
-        width: 90px;
-        height: 90px;
+        width: 100px;
+        height: 100px;
         padding: 6px;
-        background: $c-black;
-        border: 1px solid rgba($c-crimson, 0.6);
+        background: $t-main; // White background makes QR scannable
+        border: 2px solid $c-crimson;
         border-radius: 8px;
-        box-shadow: 0 0 15px rgba($c-red, 0.2);
+        box-shadow: 0 0 20px rgba($c-red, 0.3);
         
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          border-radius: 4px;
-        }
+        img { width: 100%; height: 100%; object-fit: contain; }
       }
     }
 
@@ -239,47 +253,60 @@ $font-mono: 'Fira Code', monospace;
       gap: 12px;
       width: 100%;
 
+      // BEAUTIFUL ANALYTIC BUTTONS
       .action-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 10px;
-        border-radius: 6px;
+        padding: 12px 16px;
+        border-radius: 8px;
         font-family: $font-mono;
         font-size: 0.85rem;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
 
         &.outline {
-          background: rgba($c-crimson, 0.1);
-          border: 1px solid rgba($c-crimson, 0.5);
+          background: rgba($c-black, 0.5);
+          border: 1px solid rgba($c-crimson, 0.6);
           color: $c-red;
 
           &:hover {
-            background: rgba($c-crimson, 0.2);
-            box-shadow: 0 0 10px rgba($c-red, 0.2);
+            background: rgba($c-red, 0.1);
+            border-color: $c-red;
+            box-shadow: 0 0 15px rgba($c-red, 0.2), inset 0 0 10px rgba($c-red, 0.1);
+            transform: translateY(-2px);
           }
         }
 
         &.solid {
-          background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
-          border: none;
+          background: linear-gradient(135deg, $c-crimson 0%, $c-red 100%);
+          border: 1px solid rgba($t-main, 0.15); // Glass edge highlight
           color: $t-main;
-          box-shadow: 0 4px 15px rgba($c-red, 0.2);
+          box-shadow: 0 4px 15px rgba($c-red, 0.3);
+
+          // Premium light glare sweep
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba($t-main, 0.25), transparent);
+            transition: left 0.6s ease;
+          }
 
           &:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 6px 20px rgba($c-red, 0.4);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba($c-red, 0.5), inset 0 0 0 1px rgba($t-main, 0.3);
+            &::before { left: 100%; }
           }
 
-          .dl-icon {
-            margin-left: auto;
-          }
+          .dl-icon { margin-left: auto; }
         }
       }
     }
@@ -287,11 +314,11 @@ $font-mono: 'Fira Code', monospace;
 }
 
 /* ==============================
-   DATA GRID & PURE CSS CHARTS
+   DATA GRID & NEON CSS CHARTS
    ============================== */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
   animation: fadeInUp 0.6s ease-out forwards;
   animation-delay: 0.2s;
@@ -299,7 +326,7 @@ $font-mono: 'Fira Code', monospace;
 }
 
 .metric-card {
-  padding: 24px;
+  padding: clamp(20px, 4vw, 24px);
 
   .card-header {
     display: flex;
@@ -309,15 +336,13 @@ $font-mono: 'Fira Code', monospace;
     border-bottom: 1px solid rgba($c-crimson, 0.3);
     padding-bottom: 16px;
 
-    .card-icon {
-      color: $c-red;
-    }
-
+    .card-icon { color: $c-red; }
     h3 {
       color: $t-main;
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 600;
+      letter-spacing: -0.02em;
     }
   }
 
@@ -326,84 +351,101 @@ $font-mono: 'Fira Code', monospace;
     flex-direction: column;
     gap: 20px;
 
+    .empty-state {
+      color: $t-muted;
+      font-family: $font-mono;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
     .data-row {
       display: flex;
       align-items: center;
       gap: 16px;
 
       .data-label {
-        width: 120px;
+        width: 110px;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         gap: 8px;
         color: $t-main;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        font-weight: 500;
 
         .text-muted { color: $t-muted; }
         .capitalize { text-transform: capitalize; }
       }
 
+      // Neon Tube Progress Bars
       .bar-track {
         flex-grow: 1;
-        height: 8px;
-        background: rgba(#000, 0.6);
-        border-radius: 4px;
-        overflow: hidden;
+        height: 6px;
+        background: rgba($c-black, 0.8);
+        border-radius: 10px;
         border: 1px solid rgba($t-muted, 0.1);
 
         .bar-fill {
           height: 100%;
           background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
-          border-radius: 4px;
-          box-shadow: 0 0 10px rgba($c-red, 0.5);
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba($c-red, 0.6), inset 0 0 2px rgba($t-main, 0.5); // Neon glow inside and out
           width: 0; 
-          animation: fillBar 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fillBar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        // Dart Sass 3.0.0 compliant color adjustments
         .geo-fill {
-          background: linear-gradient(
-            90deg, 
-            color.adjust($c-crimson, $lightness: -5%) 0%, 
-            color.adjust($c-crimson, $lightness: 15%) 100%
-          );
+          background: linear-gradient(90deg, color.adjust($c-crimson, $lightness: -5%) 0%, #FF3333 100%);
         }
       }
 
       .data-values {
-        width: 100px;
+        width: 80px;
+        flex-shrink: 0;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
         font-family: $font-mono;
 
-        .count {
-          color: $t-main;
-          font-weight: 600;
-          font-size: 0.95rem;
-        }
-
-        .percent {
-          color: $c-red;
-          font-size: 0.75rem;
-        }
+        .count { color: $t-main; font-weight: 600; font-size: 0.95rem; }
+        .percent { color: $c-red; font-size: 0.75rem; font-weight: 600; }
       }
     }
   }
 }
 
+// Utility States
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+  color: $t-muted;
+  font-family: $font-mono;
+
+  .pulse-icon { color: $c-red; animation: pulseRed 2s infinite; margin-bottom: 1rem; }
+  
+  .error-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba($c-red, 0.1);
+    border: 1px solid rgba($c-red, 0.3);
+    color: $t-main;
+    padding: 12px 20px;
+    border-radius: 8px;
+  }
+}
+.mt-4 { margin-top: 1.5rem; }
+
 /* ==============================
    HTML2CANVAS EXPORT UTILITIES
    ============================== */
 @media print {
-  .hide-on-print {
-    display: none !important;
-  }
-}
-
-[data-html2canvas-ignore="true"],
-.hide-on-print {
-  // Handled by inline JS or print media query above
+  .hide-on-print { display: none !important; }
 }
 
 /* ==============================
@@ -415,19 +457,19 @@ $font-mono: 'Fira Code', monospace;
 }
 
 @keyframes pulseRed {
-  0% { box-shadow: 0 0 0 0 rgba($c-red, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba($c-red, 0); }
-  100% { box-shadow: 0 0 0 0 rgba($c-red, 0); }
+  0% { filter: drop-shadow(0 0 0 rgba($c-red, 0.7)); }
+  70% { filter: drop-shadow(0 0 15px rgba($c-red, 0)); }
+  100% { filter: drop-shadow(0 0 0 rgba($c-red, 0)); }
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, -20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes fillBar {
@@ -435,45 +477,18 @@ $font-mono: 'Fira Code', monospace;
 }
 
 /* ==============================
-   RESPONSIVE MEDIA QUERIES
+   RESPONSIVE LAYOUT
    ============================== */
-@media (max-width: 900px) {
-  .analytics-header .link-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .master-controls-row {
-    grid-template-columns: 1fr; 
-  }
-
-  .metrics-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .master-stat .stat-content .stat-value {
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 500px) {
+@media (max-width: 600px) {
+  // Gracefully drops labels and percentages below the progress bar to prevent cramped data
   .metric-card .chart-container .data-row {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 
-    .data-label {
-      width: 50%;
-    }
-    .data-values {
-      width: 40%;
-      align-items: flex-start;
-      flex-direction: row;
-      gap: 10px;
-    }
-    .bar-track {
-      width: 100%;
-      order: 3;
-    }
+    .data-label { width: auto; flex-grow: 1; }
+    .data-values { width: auto; flex-direction: row; gap: 12px; align-items: baseline; }
+    .bar-track { width: 100%; order: 3; }
   }
+  
+  .export-module { flex-direction: column; text-align: center; }
 }

@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, LockKeyhole, Mail, ArrowRight, ShieldCheck, Code2, Terminal } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import './Auth.scss'; // Importing the shared SCSS
+import './Auth.scss';
 
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    username: '', email: '', password: '', confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +22,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Front-end Validation checks
     if (formData.password.length < 8) {
       setError('Passphrase must contain at least 8 characters.');
       return;
@@ -49,7 +45,6 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      {/* Background Ambience */}
       <div className="bg-grid"></div>
       <div className="bg-orb orb-1"></div>
       <div className="bg-orb orb-2"></div>
@@ -80,6 +75,7 @@ const Register = () => {
                 type="text"
                 id="username"
                 name="username"
+                autoComplete="username"
                 placeholder="dev_user1"
                 value={formData.username}
                 onChange={handleInputChange}
@@ -96,6 +92,7 @@ const Register = () => {
                 type="email"
                 id="email"
                 name="email"
+                autoComplete="email"
                 placeholder="dev@domain.com"
                 value={formData.email}
                 onChange={handleInputChange}
@@ -112,6 +109,7 @@ const Register = () => {
                 type="password"
                 id="password"
                 name="password"
+                autoComplete="new-password"
                 placeholder="••••••••••••"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -129,6 +127,7 @@ const Register = () => {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
+                autoComplete="new-password"
                 placeholder="••••••••••••"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
@@ -146,9 +145,7 @@ const Register = () => {
         <div className="auth-footer">
           <p>
             Already have clearance?{' '}
-            <Link to="/login" className="nav-link">
-              Authenticate Here
-            </Link>
+            <Link to="/login" className="nav-link">Authenticate Here</Link>
           </p>
         </div>
       </div>

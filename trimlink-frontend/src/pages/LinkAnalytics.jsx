@@ -30,8 +30,6 @@ const LinkAnalytics = () => {
     if (id) fetchAnalytics(id);
   }, [id, fetchAnalytics]);
 
-  // device/demographics come back as plain objects (Mongoose Maps serialize
-  // that way over JSON) — e.g. { mobile: 12, desktop: 4 } or { US: 9, IN: 3 }.
   const processTelemetry = (dataObj = {}, total = 0) => {
     return Object.entries(dataObj)
       .map(([key, value]) => ({
@@ -82,15 +80,16 @@ const LinkAnalytics = () => {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${link?.trim_link || 'trimlink'}-telemetry-report.pdf`);
+    pdf.save(`${link?.trim_link || 'trimlink'}-telemetry.pdf`);
   };
 
   if (status === 'loading' || status === 'idle') {
     return (
       <div className="analytics-container">
-        <p style={{ padding: '160px 24px', textAlign: 'center', color: '#9CA3AF' }}>
-          Loading telemetry…
-        </p>
+        <div className="loading-state">
+          <Activity size={32} className="pulse-icon" />
+          <p>Compiling telemetry streams…</p>
+        </div>
       </div>
     );
   }
@@ -98,17 +97,15 @@ const LinkAnalytics = () => {
   if (status === 'error') {
     return (
       <div className="analytics-container">
-        <div style={{ padding: '160px 24px', textAlign: 'center' }}>
-          <div className="error-banner" style={{ display: 'inline-flex' }}>
+        <div className="error-state">
+          <div className="error-banner">
             <Terminal size={16} />
-            <span>{error || 'Failed to load this link.'}</span>
+            <span>{error || 'Failed to load telemetry data.'}</span>
           </div>
-          <div style={{ marginTop: 24 }}>
-            <button className="action-btn outline" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft size={18} />
-              <span>Back to Dashboard</span>
-            </button>
-          </div>
+          <button className="action-btn outline mt-4" onClick={() => navigate('/dashboard')}>
+            <ArrowLeft size={18} />
+            <span>Return to Dashboard</span>
+          </button>
         </div>
       </div>
     );
@@ -124,11 +121,10 @@ const LinkAnalytics = () => {
       <div className="bg-orb orb-1"></div>
 
       <div className="analytics-layout" ref={printRef}>
-
         <header className="analytics-header">
           <button className="back-btn hide-on-print" onClick={() => navigate('/dashboard')}>
             <ArrowLeft size={18} />
-            <span>Back to Dashboard</span>
+            <span>Dashboard</span>
           </button>
 
           <div className="link-meta glass-panel">
@@ -140,14 +136,14 @@ const LinkAnalytics = () => {
             </div>
             <div className="live-status">
               <span className="status-dot blink"></span>
-              <span className="status-text">Telemetry Active</span>
+              <span className="status-text">Live Telemetry</span>
             </div>
           </div>
         </header>
 
         <div className="master-controls-row">
           <div className="master-stat glass-panel">
-            <Activity size={32} className="stat-icon" />
+            <Activity size={36} className="stat-icon" />
             <div className="stat-content">
               <span className="stat-label">Total Resolves (All Time)</span>
               <span className="stat-value">{totalClicks.toLocaleString()}</span>
@@ -158,7 +154,7 @@ const LinkAnalytics = () => {
             <div className="export-module glass-panel">
               <div className="qr-display">
                 <div className="qr-frame">
-                  <img src={link.qr_code} alt="Routing QR Code" crossOrigin="anonymous" />
+                  <img src={link.qr_code} alt="Routing QR" crossOrigin="anonymous" />
                 </div>
               </div>
               <div className="export-actions hide-on-print">
@@ -180,54 +176,56 @@ const LinkAnalytics = () => {
           <div className="metric-card glass-panel">
             <div className="card-header">
               <Cpu size={20} className="card-icon" />
-              <h3>Device Breakdown</h3>
+              <h3>Hardware Fingerprint</h3>
             </div>
             <div className="chart-container">
-              {deviceStats.length === 0 && (
-                <p className="empty-state">No clicks recorded yet.</p>
+              {deviceStats.length === 0 ? (
+                <p className="empty-state">Awaiting data packets…</p>
+              ) : (
+                deviceStats.map((device, index) => (
+                  <div className="data-row" key={index}>
+                    <div className="data-label">
+                      {getDeviceIcon(device.name)}
+                      <span className="name capitalize">{device.name}</span>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill" style={{ width: `${device.percent}%` }}></div>
+                    </div>
+                    <div className="data-values">
+                      <span className="count">{device.count.toLocaleString()}</span>
+                      <span className="percent">{device.percent}%</span>
+                    </div>
+                  </div>
+                ))
               )}
-              {deviceStats.map((device, index) => (
-                <div className="data-row" key={index}>
-                  <div className="data-label">
-                    {getDeviceIcon(device.name)}
-                    <span className="name capitalize">{device.name}</span>
-                  </div>
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${device.percent}%` }}></div>
-                  </div>
-                  <div className="data-values">
-                    <span className="count">{device.count.toLocaleString()}</span>
-                    <span className="percent">{device.percent}%</span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
 
           <div className="metric-card glass-panel">
             <div className="card-header">
               <Globe2 size={20} className="card-icon" />
-              <h3>Geographic Routing</h3>
+              <h3>Global Routing</h3>
             </div>
             <div className="chart-container">
-              {countryStats.length === 0 && (
-                <p className="empty-state">No clicks recorded yet.</p>
+              {countryStats.length === 0 ? (
+                <p className="empty-state">Awaiting data packets…</p>
+              ) : (
+                countryStats.map((country, index) => (
+                  <div className="data-row" key={index}>
+                    <div className="data-label">
+                      <MapPin size={16} className="text-muted" />
+                      <span className="name">{country.name}</span>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill geo-fill" style={{ width: `${country.percent}%` }}></div>
+                    </div>
+                    <div className="data-values">
+                      <span className="count">{country.count.toLocaleString()}</span>
+                      <span className="percent">{country.percent}%</span>
+                    </div>
+                  </div>
+                ))
               )}
-              {countryStats.map((country, index) => (
-                <div className="data-row" key={index}>
-                  <div className="data-label">
-                    <MapPin size={16} className="text-muted" />
-                    <span className="name">{country.name}</span>
-                  </div>
-                  <div className="bar-track">
-                    <div className="bar-fill geo-fill" style={{ width: `${country.percent}%` }}></div>
-                  </div>
-                  <div className="data-values">
-                    <span className="count">{country.count.toLocaleString()}</span>
-                    <span className="percent">{country.percent}%</span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>

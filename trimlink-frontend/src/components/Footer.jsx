@@ -2,7 +2,7 @@ import React from 'react';
 import { Activity, ExternalLink } from 'lucide-react';
 import './Footer.scss';
 
-// --- Inline Brand Icons (Since Lucide v1.0 removed them) ---
+// SVG Icons
 const Github = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
@@ -23,7 +23,6 @@ const Linkedin = ({ size = 20 }) => (
     <circle cx="4" cy="4" r="2" />
   </svg>
 );
-// ---------------------------------------------------------
 
 const Footer = () => {
   return (
@@ -31,36 +30,33 @@ const Footer = () => {
       <div className="glow-edge"></div>
       
       <div className="footer-content">
-        {/* Massive Typography Section */}
         <div className="footer-hero">
           <h2>READY TO <span className="outline-text">SCALE?</span></h2>
           <p>Join the next generation of data-driven link management.</p>
         </div>
 
-        {/* Grid Layout */}
         <div className="footer-grid">
-          {/* Brand Column */}
           <div className="brand-col">
             <div className="logo-wrapper">
               <Activity size={28} className="logo-icon" />
               <span>TrimLink</span>
             </div>
             
-            {/* API Status Indicator */}
             <div className="system-status">
-              <div className="status-dot pulsing"></div>
-              <span className="status-text">API Systems: Operational</span>
+              <span className="status-text">
+                <span className="status-dot"></span>
+                API Systems: Operational
+              </span>
               <span className="uptime">99.99% Uptime</span>
             </div>
 
             <div className="social-links">
-              <a href="#github"><Github size={20} /></a>
-              <a href="#twitter"><Twitter size={20} /></a>
-              <a href="#linkedin"><Linkedin size={20} /></a>
+              <a href="#github" aria-label="Github"><Github size={20} /></a>
+              <a href="#twitter" aria-label="Twitter"><Twitter size={20} /></a>
+              <a href="#linkedin" aria-label="LinkedIn"><Linkedin size={20} /></a>
             </div>
           </div>
 
-          {/* Links Columns */}
           <div className="links-col">
             <h4>Infrastructure</h4>
             <a href="#analytics">Edge Analytics</a>
@@ -78,7 +74,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="footer-bottom">
           <p className="copyright">
             &copy; {new Date().getFullYear()} TrimLink Inc. Engineered for scale.

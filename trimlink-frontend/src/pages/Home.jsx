@@ -8,12 +8,11 @@ import {
 import './Home.scss';
 
 const Home = () => {
-  // Initialize programmatic routing
   const navigate = useNavigate();
 
   return (
     <main className="premium-home">
-      {/* 1. Animated Tech Background */}
+      {/* 1. Optimized Tech Background */}
       <div className="animated-bg">
         <div className="grid-overlay"></div>
         <div className="glow-orb red-1"></div>
@@ -21,7 +20,6 @@ const Home = () => {
       </div>
 
       <div className="content-container">
-        
         {/* 2. Hero Section */}
         <section className="hero-section">
           <div className="badge animate-drop">
@@ -51,27 +49,28 @@ const Home = () => {
             </button>
           </div>
         </section>
+      </div>
 
-        {/* 3. Infinite Marquee (Social Proof / Tech Stack) */}
-        <div className="tech-marquee animate-fade-in">
-          <div className="marquee-track">
-            <span>Powered by Node.js</span><div className="dot"></div>
-            <span>Global Edge Network</span><div className="dot"></div>
-            <span>99.9% Uptime</span><div className="dot"></div>
-            <span>Real-time WebSockets</span><div className="dot"></div>
-            <span>REST API Ready</span><div className="dot"></div>
-            {/* Duplicated for infinite scroll effect */}
-            <span>Powered by Node.js</span><div className="dot"></div>
-            <span>Global Edge Network</span><div className="dot"></div>
-            <span>99.9% Uptime</span><div className="dot"></div>
-            <span>Real-time WebSockets</span><div className="dot"></div>
-            <span>REST API Ready</span><div className="dot"></div>
-          </div>
+      {/* 3. Infinite Marquee (Moved outside container to fix overflow) */}
+      <div className="tech-marquee animate-fade-in">
+        <div className="marquee-track">
+          <span>Powered by Node.js</span><div className="dot"></div>
+          <span>Global Edge Network</span><div className="dot"></div>
+          <span>99.9% Uptime</span><div className="dot"></div>
+          <span>Real-time WebSockets</span><div className="dot"></div>
+          <span>REST API Ready</span><div className="dot"></div>
+          {/* Duplication for seamless looping */}
+          <span>Powered by Node.js</span><div className="dot"></div>
+          <span>Global Edge Network</span><div className="dot"></div>
+          <span>99.9% Uptime</span><div className="dot"></div>
+          <span>Real-time WebSockets</span><div className="dot"></div>
+          <span>REST API Ready</span><div className="dot"></div>
         </div>
+      </div>
 
+      <div className="content-container">
         {/* 4. Premium Bento Box Grid */}
         <section className="bento-grid">
-          {/* Main Chart Card */}
           <div className="bento-card span-2 animate-pop">
             <div className="card-header">
               <BarChart3 className="accent-icon" size={24} />
@@ -89,7 +88,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Geo Card */}
           <div className="bento-card animate-pop delay-1">
             <div className="card-header">
               <Globe2 className="accent-icon" size={24} />
@@ -103,7 +101,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Device Hardware Card */}
           <div className="bento-card animate-pop delay-2">
             <div className="card-header">
               <Laptop className="accent-icon" size={24} />
@@ -122,7 +119,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Developer API Card */}
           <div className="bento-card span-2 animate-pop delay-3">
             <div className="card-header">
               <Code2 className="accent-icon" size={24} />
@@ -158,7 +154,6 @@ const Home = () => {
             <Shield size={20} />
           </button>
         </section>
-
       </div>
     </main>
   );

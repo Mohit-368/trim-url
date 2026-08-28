@@ -165,8 +165,20 @@ async function logoutController(req, res) {
   }
 }
 
+async function meController(req, res) {
+  // authenticateUser middleware has already attached req.user
+  return res.status(200).json({
+    user: {
+      id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+    },
+  });
+}
+
 module.exports = {
   registerController,
   loginController,
   logoutController,
+  meController,
 };

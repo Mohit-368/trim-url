@@ -4,7 +4,7 @@ import {
   Plus,
   Globe2,
   BarChart3,
-  ShieldCheck,
+  LineChart,
   Terminal,
   Trash2,
   Loader2,
@@ -74,10 +74,8 @@ const Dashboard = () => {
       {/* Dynamic Background Elements */}
       <div className="bg-grid"></div>
       <div className="bg-orb orb-1"></div>
-      <div className="bg-orb orb-2"></div>
 
       <div className="dashboard-layout">
-
         {/* HEADER GREETING */}
         <header className="dashboard-header">
           <h1>
@@ -88,19 +86,19 @@ const Dashboard = () => {
 
         {/* MAIN CONTENT AREA */}
         <main className="dashboard-main glass-panel">
-
-          {/* CONTROLS (All Links & Add Links +) */}
+          {/* CONTROLS */}
           <div className="controls-row">
             <div className="section-title">
               <Globe2 size={20} className="title-icon" />
               <h2>All Links</h2>
             </div>
             <button className="add-link-btn" onClick={() => setShowForm((v) => !v)}>
-              <span>{showForm ? 'cancel' : 'add links'}</span>
+              <span>{showForm ? 'Cancel' : 'Add Links'}</span>
               <Plus size={18} style={{ transform: showForm ? 'rotate(45deg)' : 'none' }} />
             </button>
           </div>
 
+          {/* CREATE LINK FORM */}
           {showForm && (
             <form className="create-link-panel" onSubmit={handleCreate}>
               {formError && (
@@ -109,6 +107,7 @@ const Dashboard = () => {
                   <span>{formError}</span>
                 </div>
               )}
+              
               <div className="create-link-fields">
                 <div className="form-group">
                   <label htmlFor="original_link">Destination URL</label>
@@ -145,8 +144,8 @@ const Dashboard = () => {
                   />
                 </div>
               </div>
-              <button type="submit" className="add-link-btn" disabled={creating}>
-                <span>{creating ? 'creating…' : 'create link'}</span>
+              <button type="submit" className="add-link-btn submit" disabled={creating}>
+                <span>{creating ? 'Creating…' : 'Create Link'}</span>
                 {creating ? <Loader2 size={18} className="spin-icon" /> : <Plus size={18} />}
               </button>
             </form>
@@ -188,28 +187,34 @@ const Dashboard = () => {
                         <span className="short-link">{link.trim_link}</span>
                         <span className="long-link">{link.original_link}</span>
                       </div>
+                      
                       <div className="col stats">
                         <BarChart3 size={14} />
                         <span>{link.clicks?.toLocaleString() || 0} clicks</span>
                       </div>
+                      
                       <div className={`col status ${isExpired ? '' : 'active'}`}>
                         <div className="status-dot"></div> {isExpired ? 'Expired' : 'Active'}
                       </div>
+                      
                       <div className="col actions">
+                        {/* New Analytics Button */}
                         <button
-                          className="icon-btn"
+                          className="analytics-btn"
                           title="View analytics"
                           onClick={() => navigate(`/analytics/${link._id}`)}
                         >
-                          <ShieldCheck size={16} />
+                          <LineChart size={16} />
+                          <span>Analytics</span>
                         </button>
+                        
                         <button
-                          className="icon-btn"
+                          className="icon-btn delete"
                           title="Delete link"
                           disabled={deletingId === link._id}
                           onClick={() => handleDelete(link._id)}
                         >
-                          <Trash2 size={16} />
+                          {deletingId === link._id ? <Loader2 size={16} className="spin-icon" /> : <Trash2 size={16} />}
                         </button>
                       </div>
                     </div>
@@ -218,7 +223,6 @@ const Dashboard = () => {
               </>
             )}
           </div>
-
         </main>
       </div>
     </div>

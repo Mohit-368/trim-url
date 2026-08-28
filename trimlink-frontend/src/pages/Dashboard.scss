@@ -1,17 +1,18 @@
 @use "sass:color";
 
-// TrimLink Core Variables
 $c-black: #000000;
 $c-dark: #3D0000;
 $c-crimson: #950101;
 $c-red: #FF0000;
 $t-main: #FFFFFF;
 $t-muted: #9CA3AF;
-$font-sans: 'Inter', sans-serif;
-$font-mono: 'Fira Code', monospace;
+$font-sans: 'Inter', system-ui, sans-serif;
+$font-mono: 'Fira Code', 'Courier New', monospace;
 
-// Layout & Background
 .dashboard-container {
+  // CRITICAL FIX: Stops input fields from blowing past container bounds
+  *, *::before, *::after { box-sizing: border-box; }
+
   position: relative;
   min-height: 100vh;
   background: radial-gradient(circle at top center, $c-dark 0%, $c-black 80%);
@@ -20,14 +21,15 @@ $font-mono: 'Fira Code', monospace;
   padding: 24px;
 }
 
-// Background Grid & Orbs
+// Background Grid & Orbs (Performance Optimized)
 .bg-grid {
   position: fixed;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background-image: linear-gradient(rgba($c-crimson, 0.15) 1px, transparent 1px),
+  background-image: 
+    linear-gradient(rgba($c-crimson, 0.15) 1px, transparent 1px),
     linear-gradient(90deg, rgba($c-crimson, 0.15) 1px, transparent 1px);
   background-size: 50px 50px;
   transform: rotateX(45deg);
@@ -35,20 +37,20 @@ $font-mono: 'Fira Code', monospace;
   z-index: 0;
   pointer-events: none;
   animation: gridMove 30s linear infinite;
+  will-change: transform;
 }
 
 .bg-orb {
   position: fixed;
   border-radius: 50%;
-  filter: blur(100px);
   z-index: 1;
-  opacity: 0.3;
   pointer-events: none;
+  will-change: transform;
 
   &.orb-1 {
-    width: 500px;
-    height: 500px;
-    background: $c-crimson;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba($c-crimson, 0.25) 0%, transparent 60%);
     top: -200px;
     right: -100px;
   }
@@ -59,6 +61,7 @@ $font-mono: 'Fira Code', monospace;
   background: linear-gradient(145deg, rgba($c-dark, 0.4), rgba($c-black, 0.7));
   border: 1px solid rgba($c-crimson, 0.3);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba($c-crimson, 0.05);
 }
 
@@ -67,10 +70,7 @@ $font-mono: 'Fira Code', monospace;
   position: relative;
   z-index: 10;
   max-width: 1200px;
-  
-  // Forces the layout completely below your global absolute/fixed navbar
   margin: 120px auto 0 auto; 
-  
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -84,7 +84,7 @@ $font-mono: 'Fira Code', monospace;
   h1 {
     color: $t-main;
     font-family: $font-mono;
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
     font-weight: 400;
     margin: 0;
 
@@ -92,7 +92,6 @@ $font-mono: 'Fira Code', monospace;
       color: $c-red;
       text-shadow: 0 0 15px rgba($c-red, 0.4);
     }
-
     .cursor-blink {
       color: $c-red;
       animation: blink 1s step-end infinite;
@@ -103,17 +102,19 @@ $font-mono: 'Fira Code', monospace;
 // Main Content Box
 .dashboard-main {
   border-radius: 16px;
-  padding: 32px;
+  padding: clamp(1.5rem, 4vw, 2rem);
   min-height: 500px;
   animation: riseUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-// Controls Row (All Links / Add Links)
+// Controls Row
 .controls-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 1rem;
 
   .section-title {
     display: flex;
@@ -122,39 +123,68 @@ $font-mono: 'Fira Code', monospace;
 
     h2 {
       color: $t-main;
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
       font-weight: 600;
       margin: 0;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.02em;
     }
+    .title-icon { color: $c-red; }
+  }
+}
 
-    .title-icon {
-      color: $c-red;
-    }
+// BEAUTIFUL BUTTONS (Applied to both Toggle and Submit)
+.add-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, $c-crimson 0%, $c-red 100%);
+  border: 1px solid rgba($t-main, 0.15); // Glass edge
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: $t-main;
+  font-family: $font-mono;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba($c-red, 0.3);
+
+  // The light-glare sweep effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba($t-main, 0.2), transparent);
+    transition: left 0.6s ease;
   }
 
-  .add-link-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(90deg, $c-crimson 0%, $c-red 100%);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    color: $t-main;
-    font-family: $font-mono;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba($c-red, 0.2);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba($c-red, 0.4);
-      filter: brightness(1.2);
-    }
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba($c-red, 0.5), inset 0 0 0 1px rgba($t-main, 0.3);
+    &::before { left: 100%; }
   }
+
+  &:disabled {
+    background: rgba($c-dark, 0.8);
+    border-color: rgba($c-crimson, 0.4);
+    color: rgba($t-main, 0.5);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  &.submit {
+    align-self: flex-start; // Keeps the submit button from stretching
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
+
+  // Smooth rotation for the Plus icon
+  svg { transition: transform 0.3s ease; }
 }
 
 .divider {
@@ -163,15 +193,15 @@ $font-mono: 'Fira Code', monospace;
   margin-bottom: 24px;
 }
 
-// Inline create-link form (toggled by the "add links" button)
+// Inline create-link form
 .create-link-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
   background: rgba(#000000, 0.4);
   border: 1px solid rgba($c-crimson, 0.3);
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 24px;
   margin-bottom: 24px;
   animation: riseUp 0.3s ease forwards;
 
@@ -188,10 +218,12 @@ $font-mono: 'Fira Code', monospace;
     font-family: $font-mono;
   }
 
+  // RESPONSIVE GRID FIX: Ensures fields automatically drop down on smaller screens
   .create-link-fields {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
+    width: 100%;
   }
 
   .form-group {
@@ -202,7 +234,7 @@ $font-mono: 'Fira Code', monospace;
     label {
       color: $t-muted;
       font-size: 0.8rem;
-      font-weight: 500;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -218,32 +250,14 @@ $font-mono: 'Fira Code', monospace;
       font-size: 0.9rem;
       transition: all 0.3s ease;
 
-      &::placeholder {
-        color: rgba($t-muted, 0.4);
-      }
+      &::placeholder { color: rgba($t-muted, 0.4); }
 
       &:focus {
         outline: none;
         border-color: $c-red;
         background: rgba(#000000, 0.7);
-        box-shadow: 0 0 15px rgba($c-red, 0.15);
+        box-shadow: 0 0 0 2px rgba($c-red, 0.2);
       }
-    }
-  }
-
-  .add-link-btn {
-    align-self: flex-start;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .create-link-fields {
-      grid-template-columns: 1fr;
     }
   }
 }
@@ -256,7 +270,7 @@ $font-mono: 'Fira Code', monospace;
   padding: 40px 0;
 }
 
-// Premium UX: Links Data Table
+// Links Data Table
 .links-data-view {
   display: flex;
   flex-direction: column;
@@ -264,7 +278,8 @@ $font-mono: 'Fira Code', monospace;
 
   .table-header {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    // Adjusted layout slightly to fit the new Analytics button
+    grid-template-columns: 2.5fr 1fr 1fr auto; 
     padding: 0 16px 12px 16px;
     color: $t-muted;
     font-family: $font-mono;
@@ -276,7 +291,7 @@ $font-mono: 'Fira Code', monospace;
 
   .data-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    grid-template-columns: 2.5fr 1fr 1fr auto;
     align-items: center;
     background: rgba(#000000, 0.4);
     border: 1px solid rgba($c-crimson, 0.1);
@@ -295,6 +310,7 @@ $font-mono: 'Fira Code', monospace;
       display: flex;
       flex-direction: column;
       gap: 4px;
+      overflow: hidden; // Keeps text clipping cleanly
 
       .short-link {
         color: $t-main;
@@ -302,14 +318,13 @@ $font-mono: 'Fira Code', monospace;
         font-weight: 600;
         font-size: 0.95rem;
       }
-
       .long-link {
         color: $t-muted;
         font-size: 0.85rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 90%;
+        max-width: 95%;
       }
     }
 
@@ -331,45 +346,61 @@ $font-mono: 'Fira Code', monospace;
       font-family: $font-mono;
 
       .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: $t-muted;
+        width: 8px; height: 8px; border-radius: 50%; background: $t-muted;
       }
-
       &.active {
         color: #10B981; 
-        .status-dot {
-          background: #10B981;
-          box-shadow: 0 0 8px #10B981;
-        }
-      }
-
-      &.routing {
-        color: #F59E0B; 
-        .spin-icon {
-          animation: spin 3s linear infinite;
-        }
+        .status-dot { background: #10B981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
       }
     }
 
     .actions {
       display: flex;
-      gap: 8px;
+      align-items: center;
+      gap: 12px;
 
-      .icon-btn {
+      // NEW Analytics Button
+      .analytics-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba($c-red, 0.1);
+        border: 1px solid rgba($c-red, 0.3);
+        color: $c-red;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: $font-mono;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: $c-red;
+          color: $c-black;
+          box-shadow: 0 0 15px rgba($c-red, 0.4);
+        }
+      }
+
+      .icon-btn.delete {
         background: transparent;
         border: 1px solid rgba($t-muted, 0.2);
         color: $t-muted;
         padding: 6px;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
         transition: all 0.2s ease;
 
-        &:hover {
-          color: $c-red;
-          border-color: $c-red;
-          background: rgba($c-red, 0.1);
+        &:hover:not(:disabled) {
+          color: #EF4444; // Warning Red
+          border-color: #EF4444;
+          background: rgba(239, 68, 68, 0.1);
+        }
+        
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       }
     }
@@ -402,22 +433,32 @@ $font-mono: 'Fira Code', monospace;
   to { transform: rotate(360deg); }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .links-data-view .table-header {
-    display: none;
-  }
-
+// Responsive Breakpoints
+@media (max-width: 900px) {
+  .links-data-view .table-header { display: none; }
+  
   .links-data-view .data-row {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
+    padding: 20px;
 
-    .actions {
-      justify-content: flex-start;
+    .long-link { white-space: normal; word-break: break-all; max-width: 100%; }
+
+    .actions { 
+      padding-top: 12px;
+      border-top: 1px solid rgba($t-muted, 0.2);
+      justify-content: flex-end; 
     }
   }
+}
+
+@media (max-width: 480px) {
+  .add-link-btn { width: 100%; justify-content: center; }
   
-  .dashboard-header h1 {
-    font-size: 1.8rem;
+  .links-data-view .data-row .actions {
+    flex-direction: column;
+    width: 100%;
+    
+    button { width: 100%; justify-content: center; }
   }
 }
